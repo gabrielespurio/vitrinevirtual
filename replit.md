@@ -7,7 +7,7 @@ Flash Vitrine is a micro-SaaS application that enables users to create and share
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
-Primary brand color: #732472 (purple theme)
+Primary brand color: #5c115b (dark purple theme)
 
 ## System Architecture
 
