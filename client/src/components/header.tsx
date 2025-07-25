@@ -41,13 +41,7 @@ export function Header() {
     navigate("/login");
   };
 
-  const handleCreateVitrine = () => {
-    if (isAuthenticated) {
-      navigate("/criar");
-    } else {
-      navigate("/login");
-    }
-  };
+
 
   const handleConfigurations = () => {
     // Navegará para página de configurações quando criada
@@ -92,13 +86,6 @@ export function Header() {
             <div className="flex items-center space-x-4">
               {isAuthenticated && user ? (
                 <>
-                  <Button
-                    size="sm"
-                    onClick={handleCreateVitrine}
-                  >
-                    Criar Vitrine
-                  </Button>
-                  
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button
