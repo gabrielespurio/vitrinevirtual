@@ -190,6 +190,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/vitrines/user", async (req, res) => {
     try {
       const sessionId = req.headers['x-session-id'] as string;
+      
+      // Debug logging
+      console.log('SessionId recebido:', sessionId);
+      console.log('Sessões ativas:', Object.keys(session));
+      console.log('Sessão encontrada:', session[sessionId]);
+      
       if (!sessionId || !session[sessionId]) {
         return res.status(401).json({ message: "Não autorizado" });
       }
@@ -204,6 +210,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       res.json(vitrinesWithProducts);
     } catch (error) {
+      console.error('Erro ao buscar vitrines:', error);
       res.status(500).json({ message: "Erro interno do servidor" });
     }
   });

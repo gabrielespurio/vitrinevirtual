@@ -93,8 +93,8 @@ Primary brand color: #732472 (purple theme)
 - Replit-specific optimizations and error handling
 
 ### Storage Architecture
-- **Current**: In-memory storage implementation for rapid prototyping
-- **Future**: PostgreSQL integration via Drizzle ORM (infrastructure ready)
-- **File Uploads**: Currently using placeholder URLs (production would need cloud storage)
+- **Current**: PostgreSQL database via Drizzle ORM (migrated from in-memory)
+- **Database**: Neon PostgreSQL serverless with persistent data storage
+- **File Uploads**: Local file system storage with real image processing
 
 The application follows a monorepo structure with clear separation between client, server, and shared code, making it easy to scale and maintain as the product grows.
