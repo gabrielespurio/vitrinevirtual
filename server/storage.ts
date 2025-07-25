@@ -47,9 +47,6 @@ export class MemStorage implements IStorage {
     const user: Usuario = { 
       ...insertUser, 
       id,
-      email: insertUser.email || null,
-      nome: insertUser.nome || null,
-      senha: insertUser.senha || null,
     };
     this.usuarios.set(id, user);
     return user;
@@ -66,12 +63,11 @@ export class MemStorage implements IStorage {
     );
   }
 
-  async createVitrine(insertVitrine: InsertVitrine): Promise<Vitrine> {
+  async createVitrine(insertVitrine: InsertVitrine & { usuario_id: string }): Promise<Vitrine> {
     const id = randomUUID();
     const vitrine: Vitrine = { 
       ...insertVitrine, 
       id,
-      usuario_id: null, // For MVP, no user authentication
       descricao: insertVitrine.descricao || null,
       imagem_capa: insertVitrine.imagem_capa || null,
     };

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { queryClient } from "@/lib/queryClient";
 import { useLocation } from "wouter";
@@ -6,6 +6,7 @@ import { VitrineForm } from "@/components/vitrine-form";
 import { ProductForm } from "@/components/product-form";
 import { api } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
+import { authManager } from "@/lib/auth";
 import type { InsertVitrine, InsertProduto, Vitrine, Produto } from "@shared/schema";
 
 export default function CreateVitrine() {
@@ -14,6 +15,13 @@ export default function CreateVitrine() {
   const [vitrine, setVitrine] = useState<Vitrine | null>(null);
   const [products, setProducts] = useState<Produto[]>([]);
   const { toast } = useToast();
+
+  // Verificar autenticação
+  useEffect(() => {
+    if (!authManager.isAuthenticated()) {
+      setLocation("/login");
+    }
+  }, [setLocation]);
 
   const createVitrineMutation = useMutation({
     mutationFn: api.createVitrine,

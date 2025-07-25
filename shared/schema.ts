@@ -5,14 +5,14 @@ import { z } from "zod";
 
 export const usuarios = pgTable("usuarios", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  nome: text("nome"),
-  email: text("email").unique(),
-  senha: text("senha"),
+  nome: text("nome").notNull(),
+  email: text("email").unique().notNull(),
+  senha: text("senha").notNull(),
 });
 
 export const vitrines = pgTable("vitrines", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  usuario_id: varchar("usuario_id").references(() => usuarios.id),
+  usuario_id: varchar("usuario_id").references(() => usuarios.id).notNull(),
   nome: text("nome").notNull(),
   descricao: text("descricao"),
   slug: text("slug").unique().notNull(),
@@ -33,6 +33,15 @@ export const insertUsuarioSchema = createInsertSchema(usuarios).pick({
   nome: true,
   email: true,
   senha: true,
+}).extend({
+  nome: z.string().min(1, "Nome é obrigatório"),
+  email: z.string().email("Email deve ser válido"),
+  senha: z.string().min(6, "Senha deve ter pelo menos 6 caracteres"),
+});
+
+export const loginSchema = z.object({
+  email: z.string().email("Email deve ser válido"),
+  senha: z.string().min(1, "Senha é obrigatória"),
 });
 
 export const insertVitrineSchema = createInsertSchema(vitrines).pick({
@@ -59,6 +68,7 @@ export const insertProdutoSchema = createInsertSchema(produtos).pick({
 
 export type InsertUsuario = z.infer<typeof insertUsuarioSchema>;
 export type Usuario = typeof usuarios.$inferSelect;
+export type Login = z.infer<typeof loginSchema>;
 
 export type InsertVitrine = z.infer<typeof insertVitrineSchema>;
 export type Vitrine = typeof vitrines.$inferSelect;

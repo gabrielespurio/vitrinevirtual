@@ -1,7 +1,7 @@
 import express, { type Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertVitrineSchema, insertProdutoSchema } from "@shared/schema";
+import { insertVitrineSchema, insertProdutoSchema, insertUsuarioSchema, loginSchema } from "@shared/schema";
 import { z } from "zod";
 import multer from "multer";
 import path from "path";
@@ -41,6 +41,83 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Servir arquivos estáticos da pasta uploads
   app.use("/uploads", express.static(uploadDir));
 
+  // Middleware para autenticação simples com sessão
+  const session: { [key: string]: { userId: string; userName: string } } = {};
+
+  // Middleware para verificar autenticação
+  const requireAuth = (req: any, res: any, next: any) => {
+    const sessionId = req.headers['x-session-id'];
+    if (!sessionId || !session[sessionId]) {
+      return res.status(401).json({ error: "Não autenticado" });
+    }
+    req.user = session[sessionId];
+    next();
+  };
+
+  // Rota de cadastro
+  app.post("/api/register", async (req, res) => {
+    try {
+      const userData = insertUsuarioSchema.parse(req.body);
+      
+      // Verificar se o email já existe
+      const existingUser = await storage.getUserByEmail(userData.email);
+      if (existingUser) {
+        return res.status(400).json({ error: "Email já cadastrado" });
+      }
+
+      const user = await storage.createUser(userData);
+      const sessionId = Date.now().toString() + Math.random().toString(36);
+      session[sessionId] = { userId: user.id, userName: user.nome };
+
+      res.json({ 
+        user: { id: user.id, nome: user.nome, email: user.email },
+        sessionId 
+      });
+    } catch (error: any) {
+      res.status(400).json({ error: error.message });
+    }
+  });
+
+  // Rota de login
+  app.post("/api/login", async (req, res) => {
+    try {
+      const loginData = loginSchema.parse(req.body);
+      
+      const user = await storage.getUserByEmail(loginData.email);
+      if (!user || user.senha !== loginData.senha) {
+        return res.status(401).json({ error: "Credenciais inválidas" });
+      }
+
+      const sessionId = Date.now().toString() + Math.random().toString(36);
+      session[sessionId] = { userId: user.id, userName: user.nome };
+
+      res.json({ 
+        user: { id: user.id, nome: user.nome, email: user.email },
+        sessionId 
+      });
+    } catch (error: any) {
+      res.status(400).json({ error: error.message });
+    }
+  });
+
+  // Rota de logout
+  app.post("/api/logout", (req, res) => {
+    const sessionId = req.headers['x-session-id'] as string;
+    if (sessionId && session[sessionId]) {
+      delete session[sessionId];
+    }
+    res.json({ message: "Logout realizado com sucesso" });
+  });
+
+  // Rota para verificar sessão atual
+  app.get("/api/me", (req, res) => {
+    const sessionId = req.headers['x-session-id'] as string;
+    if (!sessionId || !session[sessionId]) {
+      return res.status(401).json({ error: "Não autenticado" });
+    }
+    res.json({ user: session[sessionId] });
+  });
+
   // Upload de imagem
   app.post("/api/upload", upload.single("image"), (req, res) => {
     try {
@@ -70,7 +147,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Este slug já está em uso" });
       }
 
-      const vitrine = await storage.createVitrine(validatedData);
+      const vitrine = await storage.createVitrine({
+        ...validatedData,
+        usuario_id: "temp-user" // Temporário enquanto autenticação não está sendo usada
+      });
       res.json(vitrine);
     } catch (error) {
       if (error instanceof z.ZodError) {
