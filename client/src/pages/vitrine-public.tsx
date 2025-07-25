@@ -1,15 +1,19 @@
 import { useQuery } from "@tanstack/react-query";
 import { useRoute, useLocation } from "wouter";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Share2, ExternalLink, ArrowLeft, Eye, Heart, ShoppingCart } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Share2, ExternalLink, ArrowLeft, Eye, Heart, ShoppingCart, Search, X } from "lucide-react";
 import { Link } from "wouter";
 
 export default function VitrinePublic() {
   const [match, params] = useRoute("/:slug");
   const [, navigate] = useLocation();
   const slug = params?.slug;
+  const [searchTerm, setSearchTerm] = useState("");
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   const { data, isLoading, error } = useQuery<{
     vitrine: { id: string; nome: string; descricao: string | null; slug: string; imagem_capa: string | null; usuario_id: string | null; };
@@ -79,6 +83,12 @@ Podemos conversar sobre a compra?`;
 
   const { vitrine, produtos } = data;
 
+  // Filtrar produtos baseado na busca
+  const filteredProdutos = produtos.filter(produto =>
+    produto.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (produto.descricao && produto.descricao.toLowerCase().includes(searchTerm.toLowerCase()))
+  );
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
       {/* Modern Hero Section */}
@@ -116,13 +126,41 @@ Podemos conversar sobre a compra?`;
           <CardContent className="p-6">
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
               <div className="flex items-center space-x-4">
-                <div className="flex items-center text-slate-600">
-                  <Eye className="w-4 h-4 mr-2" />
-                  <span className="text-sm font-medium">Vitrine pública</span>
-                </div>
-                <Badge variant="secondary" className="text-xs">
-                  {produtos.length} {produtos.length === 1 ? 'produto' : 'produtos'}
-                </Badge>
+                {!isSearchOpen ? (
+                  <>
+                    <Button 
+                      variant="outline" 
+                      onClick={() => setIsSearchOpen(true)}
+                      className="flex items-center"
+                    >
+                      <Search className="w-4 h-4 mr-2" />
+                      Pesquisar produtos
+                    </Button>
+                    <Badge variant="secondary" className="text-xs">
+                      {searchTerm ? `${filteredProdutos.length} de ${produtos.length}` : `${produtos.length}`} {produtos.length === 1 ? 'produto' : 'produtos'}
+                    </Badge>
+                  </>
+                ) : (
+                  <div className="flex items-center space-x-2 flex-1 max-w-md">
+                    <Input
+                      placeholder="Digite o nome do produto..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="flex-1"
+                      autoFocus
+                    />
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => {
+                        setIsSearchOpen(false);
+                        setSearchTerm("");
+                      }}
+                    >
+                      <X className="w-4 h-4" />
+                    </Button>
+                  </div>
+                )}
               </div>
               <Button 
                 onClick={handleWhatsAppShare}
@@ -137,12 +175,31 @@ Podemos conversar sobre a compra?`;
 
         {/* Products Grid */}
         {produtos && produtos.length > 0 ? (
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 pb-12">
-            {produtos.map((produto) => (
-              <Card 
-                key={produto.id} 
-                className="group overflow-hidden border-0 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 bg-white"
-              >
+          <>
+            {searchTerm && filteredProdutos.length === 0 ? (
+              <div className="text-center py-12">
+                <Search className="w-16 h-16 text-slate-300 mx-auto mb-4" />
+                <h3 className="text-xl font-semibold text-slate-600 mb-2">
+                  Nenhum produto encontrado
+                </h3>
+                <p className="text-slate-500">
+                  Tente buscar com outras palavras-chave
+                </p>
+                <Button 
+                  variant="outline" 
+                  className="mt-4"
+                  onClick={() => setSearchTerm("")}
+                >
+                  Limpar busca
+                </Button>
+              </div>
+            ) : (
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 pb-12">
+                {filteredProdutos.map((produto) => (
+                  <Card 
+                    key={produto.id} 
+                    className="group overflow-hidden border-0 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 bg-white"
+                  >
                 <div className="relative overflow-hidden">
                   <img 
                     src={produto.imagem_url || "https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400"} 
@@ -210,9 +267,11 @@ Podemos conversar sobre a compra?`;
                     </Button>
                   </div>
                 </CardContent>
-              </Card>
-            ))}
-          </div>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </>
         ) : (
           <Card className="text-center py-12 shadow-lg border-0">
             <CardContent>
