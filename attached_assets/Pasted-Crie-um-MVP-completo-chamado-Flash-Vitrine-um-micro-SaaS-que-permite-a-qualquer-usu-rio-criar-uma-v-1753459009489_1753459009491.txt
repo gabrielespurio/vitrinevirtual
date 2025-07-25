@@ -1,0 +1,122 @@
+Crie um MVP completo chamado Flash Vitrine, um micro-SaaS que permite a qualquer usuário criar uma vitrine online de produtos, com o objetivo de compartilhar seus produtos por meio de um link. O sistema deve ser construído com foco em SEO e performance, utilizando Next.js no frontend e Node.js no backend, com banco de dados PostgreSQL hospedado via Neon.
+
+🧱 TECNOLOGIAS UTILIZADAS:
+Frontend: Next.js (com suporte a páginas estáticas para SEO)
+
+Backend: Node.js (Express)
+
+Banco de dados: PostgreSQL via Neon
+
+Banco de dados conectado a:
+
+perl
+Copiar
+Editar
+postgresql://neondb_owner:npg_IVmG9fiMSWn7@ep-mute-tree-acxx8sln-pooler.sa-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+📚 FUNCIONALIDADES DO MVP:
+1. Criação de Vitrine
+Rota onde o usuário informa nome da vitrine, descrição e uma imagem de capa.
+
+Gera uma URL única (/minha-vitrine) baseada em slug do nome.
+
+2. Adição de Produtos
+Cada vitrine pode conter até 5 produtos no plano gratuito.
+
+Cada produto possui:
+
+Nome
+
+Descrição
+
+Link para compra
+
+Imagem do produto
+
+3. Página Pública da Vitrine
+Qualquer pessoa pode acessar a vitrine e visualizar os produtos.
+
+A página deve ser bem estilizada com layout responsivo (usar TailwindCSS).
+
+Deve conter botão de compartilhamento via WhatsApp.
+
+🛠️ ESTRUTURA DO BANCO DE DADOS (PostgreSQL)
+sql
+Copiar
+Editar
+CREATE TABLE usuarios (
+  id SERIAL PRIMARY KEY,
+  nome TEXT,
+  email TEXT UNIQUE,
+  senha TEXT
+);
+
+CREATE TABLE vitrines (
+  id SERIAL PRIMARY KEY,
+  usuario_id INTEGER REFERENCES usuarios(id),
+  nome TEXT,
+  descricao TEXT,
+  slug TEXT UNIQUE
+);
+
+CREATE TABLE produtos (
+  id SERIAL PRIMARY KEY,
+  vitrine_id INTEGER REFERENCES vitrines(id),
+  nome TEXT,
+  descricao TEXT,
+  imagem_url TEXT,
+  link_compra TEXT
+);
+🌐 ROTAS DA API (Express)
+POST /api/usuarios → Criar novo usuário (temporariamente sem autenticação)
+
+POST /api/vitrines → Criar vitrine
+
+POST /api/produtos → Adicionar produto à vitrine
+
+GET /api/vitrine/:slug → Buscar dados da vitrine e seus produtos
+
+🧑‍🎨 FRONTEND (Next.js)
+Páginas:
+/ → Página inicial do Flash Vitrine
+
+/criar → Formulário para criar vitrine e adicionar produtos
+
+/[slug] → Página da vitrine pública com seus produtos listados
+
+Componentes:
+Formulário de cadastro de vitrine
+
+Formulário para adicionar produtos
+
+Página da vitrine com:
+
+Nome e descrição
+
+Lista de produtos
+
+Botões de compartilhamento
+
+📦 FUNCIONALIDADES EXTRA (futuro):
+Limitar vitrines gratuitas a 5 produtos
+
+Incluir botão de pagamento para desbloquear mais produtos
+
+Analytics (quantos acessos e cliques a vitrine teve)
+
+Autenticação com Google (opcional no futuro)
+
+🔐 VARIÁVEIS DE AMBIENTE
+Crie um arquivo .env com:
+
+perl
+Copiar
+Editar
+DATABASE_URL=postgresql://neondb_owner:npg_IVmG9fiMSWn7@ep-mute-tree-acxx8sln-pooler.sa-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+🚀 OBJETIVO FINAL DO MVP
+Permitir que qualquer pessoa possa:
+
+Criar uma vitrine digital com imagem de capa e nome
+
+Adicionar até 5 produtos com imagem, descrição e link
+
+Compartilhar o link gerado da vitrine nas redes sociais
