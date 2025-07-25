@@ -194,9 +194,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: "Não autorizado" });
       }
 
-      const vitrines = await storage.getVitrinesByUserId(session[sessionId].userId);
+      const vitrines = await storage.getVitrinesByUsuario(session[sessionId].userId);
       const vitrinesWithProducts = await Promise.all(
-        vitrines.map(async (vitrine) => ({
+        vitrines.map(async (vitrine: any) => ({
           ...vitrine,
           produtos: await storage.getProdutosByVitrine(vitrine.id)
         }))
