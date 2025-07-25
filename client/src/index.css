@@ -13,7 +13,7 @@
   --card-foreground: hsl(20, 14.3%, 4.1%);
   --border: hsl(20, 5.9%, 90%);
   --input: hsl(20, 5.9%, 90%);
-  --primary: hsl(301, 68%, 21%);
+  --primary: hsl(283, 39%, 47%);
   --primary-foreground: hsl(0, 0%, 98%);
   --secondary: hsl(60, 4.8%, 95.9%);
   --secondary-foreground: hsl(24, 9.8%, 10%);
@@ -36,7 +36,7 @@
   --card-foreground: hsl(0, 0%, 98%);
   --border: hsl(240, 3.7%, 15.9%);
   --input: hsl(240, 3.7%, 15.9%);
-  --primary: hsl(301, 68%, 35%);
+  --primary: hsl(283, 39%, 55%);
   --primary-foreground: hsl(0, 0%, 98%);
   --secondary: hsl(240, 3.7%, 15.9%);
   --secondary-foreground: hsl(0, 0%, 98%);
@@ -60,6 +60,6 @@
 
 /* Custom color overrides for Flash Vitrine brand */
 :root {
-  --primary: hsl(301, 68%, 21%);
-  --accent: hsl(301, 68%, 25%);
+  --primary: hsl(283, 39%, 47%);
+  --accent: hsl(283, 39%, 52%);
 }
