@@ -109,6 +109,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json({ message: "Logout realizado com sucesso" });
   });
 
+  // Rota para renovar sessão baseada nos dados do localStorage
+  app.post("/api/refresh-session", async (req, res) => {
+    try {
+      const { email } = req.body;
+      
+      if (!email) {
+        return res.status(400).json({ error: "Email é obrigatório" });
+      }
+
+      // Buscar usuário pelo email
+      const user = await storage.getUserByEmail(email);
+      if (!user) {
+        return res.status(404).json({ error: "Usuário não encontrado" });
+      }
+
+      // Criar nova sessão
+      const sessionId = Date.now().toString() + Math.random().toString(36);
+      session[sessionId] = { userId: user.id, userName: user.nome };
+
+      res.json({ 
+        user: { id: user.id, nome: user.nome, email: user.email },
+        sessionId 
+      });
+    } catch (error) {
+      res.status(500).json({ error: "Erro interno do servidor" });
+    }
+  });
+
   // Rota para verificar sessão atual
   app.get("/api/me", (req, res) => {
     const sessionId = req.headers['x-session-id'] as string;
@@ -191,13 +219,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const sessionId = req.headers['x-session-id'] as string;
       
-      // Debug logging
-      console.log('SessionId recebido:', sessionId);
-      console.log('Sessões ativas:', Object.keys(session));
-      console.log('Sessão encontrada:', session[sessionId]);
-      
       if (!sessionId || !session[sessionId]) {
-        return res.status(401).json({ message: "Não autorizado" });
+        // Se a sessão não existe, tentar reconstruir a partir do localStorage
+        // Para isso, vamos retornar um status especial que indica que o frontend deve fazer login novamente
+        return res.status(401).json({ message: "Sessão expirada", code: "SESSION_EXPIRED" });
       }
 
       const vitrines = await storage.getVitrinesByUsuario(session[sessionId].userId);

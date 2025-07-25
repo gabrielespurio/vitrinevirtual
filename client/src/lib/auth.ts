@@ -42,6 +42,44 @@ class AuthManager {
     return data.user;
   }
 
+  // Método para verificar se a sessão ainda é válida
+  async validateSession(): Promise<boolean> {
+    if (!this.sessionId) return false;
+    
+    try {
+      const response = await fetch('/api/vitrines/user', {
+        headers: {
+          'x-session-id': this.sessionId
+        }
+      });
+      
+      if (response.status === 401) {
+        // Sessão expirada, limpar dados
+        this.clearSession();
+        return false;
+      }
+      
+      return response.ok;
+    } catch (error) {
+      return false;
+    }
+  }
+
+  private clearSession() {
+    this.sessionId = null;
+    this.user = null;
+    localStorage.removeItem('sessionId');
+    localStorage.removeItem('user');
+  }
+
+  // Método público para atualizar a sessão
+  updateSession(sessionId: string, user: User) {
+    this.sessionId = sessionId;
+    this.user = user;
+    localStorage.setItem('sessionId', sessionId);
+    localStorage.setItem('user', JSON.stringify(user));
+  }
+
   async register(userData: InsertUsuario): Promise<User> {
     const response = await apiRequest("POST", "/api/register", userData);
     const data: AuthResponse = await response.json();

@@ -38,10 +38,39 @@ export default function Dashboard() {
   const user = authManager.getUser();
 
   // Query para buscar vitrines do usuário
-  const { data: vitrines = [], isLoading } = useQuery<Vitrine[]>({
+  const { data: vitrines = [], isLoading, error, refetch } = useQuery<Vitrine[]>({
     queryKey: ['/api/vitrines/user'],
     enabled: !!user?.id,
+    retry: false,
   });
+
+  // Função para reautenticar quando a sessão expira
+  const handleReauth = async () => {
+    if (user) {
+      try {
+        const response = await fetch('/api/refresh-session', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            email: user.email
+          })
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          // Atualizar o authManager com a nova sessão
+          authManager.updateSession(data.sessionId, data.user);
+          refetch();
+        } else {
+          navigate('/login');
+        }
+      } catch (error) {
+        navigate('/login');
+      }
+    }
+  };
 
   // Dados simulados para analytics (será substituído por dados reais)
   const analyticsData = {
@@ -59,7 +88,11 @@ export default function Dashboard() {
     navigate(`/${slug}`);
   };
 
+  // Verificar se o usuário está autenticado antes de renderizar
   if (!user) {
+    // Limpar qualquer sessão inválida
+    localStorage.removeItem('sessionId');
+    localStorage.removeItem('user');
     navigate("/login");
     return null;
   }
@@ -161,6 +194,13 @@ export default function Dashboard() {
                 {isLoading ? (
                   <div className="flex items-center justify-center py-8">
                     <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" />
+                  </div>
+                ) : error ? (
+                  <div className="text-center py-8">
+                    <div className="text-red-600 mb-4">Erro ao carregar vitrines</div>
+                    <Button onClick={handleReauth} variant="outline">
+                      Tentar Novamente
+                    </Button>
                   </div>
                 ) : vitrines.length > 0 ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
