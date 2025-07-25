@@ -40,7 +40,7 @@ export default function LoginPage() {
         title: "Login realizado com sucesso!",
         description: "Bem-vindo de volta ao Flash Vitrine",
       });
-      navigate("/create-vitrine");
+      navigate("/dashboard");
     } catch (error: any) {
       toast({
         title: "Erro no login",
@@ -57,7 +57,7 @@ export default function LoginPage() {
         title: "Conta criada com sucesso!",
         description: "Bem-vindo ao Flash Vitrine",
       });
-      navigate("/create-vitrine");
+      navigate("/dashboard");
     } catch (error: any) {
       toast({
         title: "Erro no cadastro",

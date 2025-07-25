@@ -147,9 +147,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Este slug já está em uso" });
       }
 
+      const sessionId = req.headers['x-session-id'] as string;
+      if (!sessionId || !session[sessionId]) {
+        return res.status(401).json({ message: "Não autorizado" });
+      }
+
       const vitrine = await storage.createVitrine({
         ...validatedData,
-        usuario_id: "temp-user" // Temporário enquanto autenticação não está sendo usada
+        usuario_id: session[sessionId].userId
       });
       res.json(vitrine);
     } catch (error) {
@@ -176,6 +181,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
         vitrine,
         produtos,
       });
+    } catch (error) {
+      res.status(500).json({ message: "Erro interno do servidor" });
+    }
+  });
+
+  // Buscar vitrines do usuário
+  app.get("/api/vitrines/user", async (req, res) => {
+    try {
+      const sessionId = req.headers['x-session-id'] as string;
+      if (!sessionId || !session[sessionId]) {
+        return res.status(401).json({ message: "Não autorizado" });
+      }
+
+      const vitrines = await storage.getVitrinesByUserId(session[sessionId].userId);
+      const vitrinesWithProducts = await Promise.all(
+        vitrines.map(async (vitrine) => ({
+          ...vitrine,
+          produtos: await storage.getProdutosByVitrine(vitrine.id)
+        }))
+      );
+      
+      res.json(vitrinesWithProducts);
     } catch (error) {
       res.status(500).json({ message: "Erro interno do servidor" });
     }

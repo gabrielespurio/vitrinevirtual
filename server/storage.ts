@@ -81,6 +81,12 @@ export class MemStorage implements IStorage {
     );
   }
 
+  async getVitrinesByUserId(usuarioId: string): Promise<Vitrine[]> {
+    return Array.from(this.vitrines.values()).filter(
+      (vitrine) => vitrine.usuario_id === usuarioId,
+    );
+  }
+
   // Produtos
   async getProduto(id: string): Promise<Produto | undefined> {
     return this.produtos.get(id);

@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { Header } from "@/components/header";
 import Home from "@/pages/home";
 import CreateVitrine from "@/pages/create-vitrine";
+import Dashboard from "@/pages/dashboard";
 import VitrinePublic from "@/pages/vitrine-public";
 import LoginPage from "@/pages/login";
 import NotFound from "@/pages/not-found";
@@ -17,6 +18,7 @@ function Router() {
       <Switch>
         <Route path="/" component={Home} />
         <Route path="/login" component={LoginPage} />
+        <Route path="/dashboard" component={Dashboard} />
         <Route path="/criar" component={CreateVitrine} />
         <Route path="/:slug" component={VitrinePublic} />
         <Route component={NotFound} />
