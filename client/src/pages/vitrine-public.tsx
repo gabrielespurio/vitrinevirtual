@@ -110,16 +110,19 @@ Podemos conversar sobre a compra?`;
       </div>
 
       {/* Content Section */}
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 -mt-16 relative z-10">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Action Bar */}
-        <Card className="mb-8 shadow-lg border-0 bg-white/95 backdrop-blur">
-          <CardContent className="p-4">
+        <Card className="mb-8 shadow-lg border-0 bg-white">
+          <CardContent className="p-6">
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
               <div className="flex items-center space-x-4">
                 <div className="flex items-center text-slate-600">
                   <Eye className="w-4 h-4 mr-2" />
-                  <span className="text-sm">Vitrine pública</span>
+                  <span className="text-sm font-medium">Vitrine pública</span>
                 </div>
+                <Badge variant="secondary" className="text-xs">
+                  {produtos.length} {produtos.length === 1 ? 'produto' : 'produtos'}
+                </Badge>
               </div>
               <Button 
                 onClick={handleWhatsAppShare}
