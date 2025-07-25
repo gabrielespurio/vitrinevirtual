@@ -221,6 +221,13 @@ export default function Dashboard() {
                             <ExternalLink className="w-3 h-3 mr-1" />
                             Ver Vitrine
                           </Button>
+                          <Button 
+                            size="sm" 
+                            onClick={() => navigate(`/vitrine/${vitrine.slug}/editar`)}
+                            className="flex-1"
+                          >
+                            Editar
+                          </Button>
                         </div>
                       </div>
                     ))}

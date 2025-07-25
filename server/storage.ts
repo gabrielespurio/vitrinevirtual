@@ -16,12 +16,14 @@ export interface IStorage {
   getVitrine(id: string): Promise<Vitrine | undefined>;
   getVitrineBySlug(slug: string): Promise<Vitrine | undefined>;
   createVitrine(vitrine: InsertVitrine): Promise<Vitrine>;
+  updateVitrine(id: string, data: Partial<Vitrine>): Promise<Vitrine | undefined>;
   getVitrinesByUsuario(usuarioId: string): Promise<Vitrine[]>;
 
   // Produtos
   getProduto(id: string): Promise<Produto | undefined>;
   getProdutosByVitrine(vitrineId: string): Promise<Produto[]>;
   createProduto(produto: InsertProduto): Promise<Produto>;
+  updateProduto(id: string, data: Partial<Produto>): Promise<Produto | undefined>;
   deleteProduto(id: string): Promise<boolean>;
 
   // Session store
@@ -79,6 +81,19 @@ export class DatabaseStorage implements IStorage {
     return vitrine;
   }
 
+  async updateVitrine(id: string, data: Partial<Vitrine>): Promise<Vitrine | undefined> {
+    try {
+      const [vitrine] = await db
+        .update(vitrines)
+        .set(data)
+        .where(eq(vitrines.id, id))
+        .returning();
+      return vitrine;
+    } catch (error) {
+      return undefined;
+    }
+  }
+
   async getVitrinesByUsuario(usuarioId: string): Promise<Vitrine[]> {
     return await db.select().from(vitrines).where(eq(vitrines.usuario_id, usuarioId));
   }
@@ -99,6 +114,19 @@ export class DatabaseStorage implements IStorage {
       .values(insertProduto)
       .returning();
     return produto;
+  }
+
+  async updateProduto(id: string, data: Partial<Produto>): Promise<Produto | undefined> {
+    try {
+      const [produto] = await db
+        .update(produtos)
+        .set(data)
+        .where(eq(produtos.id, id))
+        .returning();
+      return produto;
+    } catch (error) {
+      return undefined;
+    }
   }
 
   async deleteProduto(id: string): Promise<boolean> {

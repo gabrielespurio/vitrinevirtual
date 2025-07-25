@@ -240,10 +240,46 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Adicionar produto à vitrine
-  app.post("/api/produtos", async (req, res) => {
+
+
+  // Atualizar vitrine
+  app.put("/api/vitrines/:id", upload.single("imagem"), async (req, res) => {
     try {
-      const validatedData = insertProdutoSchema.parse(req.body);
+      const { id } = req.params;
+      const updateData: any = {
+        nome: req.body.nome,
+        descricao: req.body.descricao
+      };
+
+      if (req.file) {
+        updateData.imagem_capa = `/uploads/${req.file.filename}`;
+      }
+
+      const vitrine = await storage.updateVitrine(id, updateData);
+      if (!vitrine) {
+        return res.status(404).json({ message: "Vitrine não encontrada" });
+      }
+
+      res.json(vitrine);
+    } catch (error) {
+      console.error('Erro ao atualizar vitrine:', error);
+      res.status(500).json({ message: "Erro interno do servidor" });
+    }
+  });
+
+  // Adicionar produto com upload de imagem
+  app.post("/api/produtos", upload.single("imagem"), async (req, res) => {
+    try {
+      const produtoData = {
+        vitrine_id: req.body.vitrine_id,
+        nome: req.body.nome,
+        descricao: req.body.descricao,
+        preco: req.body.preco,
+        disponivel: parseInt(req.body.disponivel) || 1,
+        imagem_url: req.file ? `/uploads/${req.file.filename}` : null
+      };
+
+      const validatedData = insertProdutoSchema.parse(produtoData);
       
       // Verificar se vitrine existe
       const vitrine = await storage.getVitrine(validatedData.vitrine_id);
@@ -260,9 +296,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const produto = await storage.createProduto(validatedData);
       res.json(produto);
     } catch (error) {
+      console.error('Erro ao criar produto:', error);
       if (error instanceof z.ZodError) {
         return res.status(400).json({ message: "Dados inválidos", errors: error.errors });
       }
+      res.status(500).json({ message: "Erro interno do servidor" });
+    }
+  });
+
+  // Atualizar produto
+  app.put("/api/produtos/:id", upload.single("imagem"), async (req, res) => {
+    try {
+      const { id } = req.params;
+      const updateData: any = {
+        nome: req.body.nome,
+        descricao: req.body.descricao,
+        preco: req.body.preco,
+        disponivel: parseInt(req.body.disponivel) || 1
+      };
+
+      if (req.file) {
+        updateData.imagem_url = `/uploads/${req.file.filename}`;
+      }
+
+      const produto = await storage.updateProduto(id, updateData);
+      if (!produto) {
+        return res.status(404).json({ message: "Produto não encontrado" });
+      }
+
+      res.json(produto);
+    } catch (error) {
+      console.error('Erro ao atualizar produto:', error);
       res.status(500).json({ message: "Erro interno do servidor" });
     }
   });
