@@ -1,30 +1,24 @@
-import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Rocket, Eye, Zap, Share2, Smartphone } from "lucide-react";
+import { useLocation } from "wouter";
+import { authManager } from "@/lib/auth";
 
 export default function Home() {
+  const [, navigate] = useLocation();
+  const isAuthenticated = authManager.isAuthenticated();
+
+  const handleCreateVitrine = () => {
+    if (isAuthenticated) {
+      navigate("/criar");
+    } else {
+      navigate("/login");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-slate-50">
-      {/* Navigation */}
-      <nav className="bg-white shadow-sm border-b border-slate-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center">
-              <h1 className="text-2xl font-bold text-primary">Flash Vitrine</h1>
-            </div>
-            <div className="hidden md:block">
-              <div className="ml-10 flex items-baseline space-x-4">
-                <a href="#como-funciona" className="text-slate-600 hover:text-primary px-3 py-2 rounded-md text-sm font-medium transition-colors">Como Funciona</a>
-                <a href="#exemplo" className="text-slate-600 hover:text-primary px-3 py-2 rounded-md text-sm font-medium transition-colors">Exemplos</a>
-                <Link href="/criar">
-                  <Button>Criar Vitrine</Button>
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
-      </nav>
+
 
       {/* Hero Section */}
       <section className="bg-gradient-to-br from-blue-50 to-indigo-100 py-20">
@@ -37,12 +31,14 @@ export default function Home() {
               Transforme seus produtos em uma vitrine profissional e compartilhe com seus clientes através de um link único. Simples, rápido e totalmente gratuito.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href="/criar">
-                <Button size="lg" className="bg-primary text-white px-8 py-4 text-lg">
-                  <Rocket className="mr-2 w-5 h-5" />
-                  Criar Minha Vitrine
-                </Button>
-              </Link>
+              <Button 
+                size="lg" 
+                className="bg-primary text-white px-8 py-4 text-lg"
+                onClick={handleCreateVitrine}
+              >
+                <Rocket className="mr-2 w-5 h-5" />
+                Criar Minha Vitrine
+              </Button>
               <Button variant="outline" size="lg" className="px-8 py-4 text-lg">
                 <Eye className="mr-2 w-5 h-5" />
                 Ver Exemplo
@@ -176,9 +172,13 @@ export default function Home() {
                 <p className="text-slate-500 text-sm mb-4">Vitrine criada com</p>
                 <div className="flex items-center justify-center">
                   <h3 className="text-xl font-bold text-primary">Flash Vitrine</h3>
-                  <Link href="/criar">
-                    <Button variant="link" className="ml-4">Criar minha vitrine</Button>
-                  </Link>
+                  <Button 
+                    variant="link" 
+                    className="ml-4"
+                    onClick={handleCreateVitrine}
+                  >
+                    Criar minha vitrine
+                  </Button>
                 </div>
               </div>
             </CardContent>
@@ -196,11 +196,14 @@ export default function Home() {
             Junte-se a centenas de empreendedores que já estão vendendo mais com Flash Vitrine
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/criar">
-              <Button size="lg" variant="secondary" className="bg-white text-primary hover:bg-blue-50 px-8 py-4 text-lg">
-                Começar Agora - É Grátis
-              </Button>
-            </Link>
+            <Button 
+              size="lg" 
+              variant="secondary" 
+              className="bg-white text-primary hover:bg-blue-50 px-8 py-4 text-lg"
+              onClick={handleCreateVitrine}
+            >
+              Começar Agora - É Grátis
+            </Button>
             <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-primary px-8 py-4 text-lg">
               Ver Mais Exemplos
             </Button>
