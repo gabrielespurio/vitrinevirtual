@@ -125,7 +125,7 @@ Podemos conversar sobre a compra?`;
         <Card className="mb-8 shadow-lg border-0 bg-white">
           <CardContent className="p-6">
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-              <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-4 flex-1">
                 {!isSearchOpen ? (
                   <>
                     <Button 
@@ -141,7 +141,7 @@ Podemos conversar sobre a compra?`;
                     </Badge>
                   </>
                 ) : (
-                  <div className="flex items-center space-x-2 flex-1 max-w-md">
+                  <div className="flex items-center space-x-2 w-full">
                     <Input
                       placeholder="Digite o nome do produto..."
                       value={searchTerm}
@@ -164,7 +164,7 @@ Podemos conversar sobre a compra?`;
               </div>
               <Button 
                 onClick={handleWhatsAppShare}
-                className="bg-green-500 hover:bg-green-600 text-white shadow-lg"
+                className="bg-green-500 hover:bg-green-600 text-white shadow-lg shrink-0"
               >
                 <Share2 className="mr-2 w-4 h-4" />
                 Compartilhar no WhatsApp
