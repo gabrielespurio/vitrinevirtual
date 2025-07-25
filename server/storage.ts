@@ -44,7 +44,13 @@ export class MemStorage implements IStorage {
 
   async createUser(insertUser: InsertUsuario): Promise<Usuario> {
     const id = randomUUID();
-    const user: Usuario = { ...insertUser, id };
+    const user: Usuario = { 
+      ...insertUser, 
+      id,
+      email: insertUser.email || null,
+      nome: insertUser.nome || null,
+      senha: insertUser.senha || null,
+    };
     this.usuarios.set(id, user);
     return user;
   }
@@ -66,6 +72,8 @@ export class MemStorage implements IStorage {
       ...insertVitrine, 
       id,
       usuario_id: null, // For MVP, no user authentication
+      descricao: insertVitrine.descricao || null,
+      imagem_capa: insertVitrine.imagem_capa || null,
     };
     this.vitrines.set(id, vitrine);
     return vitrine;
@@ -90,7 +98,12 @@ export class MemStorage implements IStorage {
 
   async createProduto(insertProduto: InsertProduto): Promise<Produto> {
     const id = randomUUID();
-    const produto: Produto = { ...insertProduto, id };
+    const produto: Produto = { 
+      ...insertProduto, 
+      id,
+      descricao: insertProduto.descricao || null,
+      imagem_url: insertProduto.imagem_url || null,
+    };
     this.produtos.set(id, produto);
     return produto;
   }

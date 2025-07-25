@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -9,6 +10,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { FileUpload } from "@/components/file-upload";
 import { insertVitrineSchema, type InsertVitrine } from "@shared/schema";
 import { ArrowRight } from "lucide-react";
+import { api } from "@/lib/api";
+import { useToast } from "@/hooks/use-toast";
 
 interface VitrineFormProps {
   onSubmit: (data: InsertVitrine) => void;
@@ -17,6 +20,27 @@ interface VitrineFormProps {
 
 export function VitrineForm({ onSubmit, isLoading }: VitrineFormProps) {
   const [imagemCapa, setImagemCapa] = useState<File | null>(null);
+  const [uploadedImageUrl, setUploadedImageUrl] = useState<string>("");
+  const { toast } = useToast();
+
+  const uploadMutation = useMutation({
+    mutationFn: api.uploadImage,
+    onSuccess: (data) => {
+      setUploadedImageUrl(data.url);
+      form.setValue("imagem_capa", data.url);
+      toast({
+        title: "Imagem enviada!",
+        description: "Sua imagem foi carregada com sucesso.",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Erro no upload",
+        description: error.message || "Erro ao enviar a imagem.",
+        variant: "destructive",
+      });
+    },
+  });
 
   const form = useForm<InsertVitrine>({
     resolver: zodResolver(insertVitrineSchema),
@@ -50,9 +74,7 @@ export function VitrineForm({ onSubmit, isLoading }: VitrineFormProps) {
 
   const handleFileSelect = (file: File) => {
     setImagemCapa(file);
-    // Para o MVP, vamos usar uma URL fictícia
-    // Em produção, seria necessário implementar upload real
-    form.setValue("imagem_capa", `https://images.unsplash.com/photo-1441986300917-64674bd600d8?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&h=400`);
+    uploadMutation.mutate(file);
   };
 
   const handleSubmit = (data: InsertVitrine) => {
@@ -127,16 +149,18 @@ export function VitrineForm({ onSubmit, isLoading }: VitrineFormProps) {
             <FileUpload
               onFileSelect={handleFileSelect}
               placeholder="Clique para fazer upload ou arraste a imagem aqui"
+              isLoading={uploadMutation.isPending}
+              uploadedUrl={uploadedImageUrl}
             />
           </div>
 
           <div className="flex justify-end pt-6">
             <Button 
               type="submit"
-              disabled={isLoading}
+              disabled={isLoading || uploadMutation.isPending}
               className="bg-primary text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-600 transition-colors"
             >
-              {isLoading ? "Criando..." : "Continuar para Produtos"}
+              {isLoading ? "Criando..." : uploadMutation.isPending ? "Enviando imagem..." : "Continuar para Produtos"}
               <ArrowRight className="ml-2 w-4 h-4" />
             </Button>
           </div>

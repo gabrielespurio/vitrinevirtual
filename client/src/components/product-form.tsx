@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -10,6 +11,8 @@ import { Badge } from "@/components/ui/badge";
 import { FileUpload } from "@/components/file-upload";
 import { insertProdutoSchema, type InsertProduto, type Produto } from "@shared/schema";
 import { Plus, Trash2, ArrowLeft, Check } from "lucide-react";
+import { api } from "@/lib/api";
+import { useToast } from "@/hooks/use-toast";
 
 interface ProductFormProps {
   vitrineId: string;
@@ -31,6 +34,27 @@ export function ProductForm({
   isLoading 
 }: ProductFormProps) {
   const [showAddForm, setShowAddForm] = useState(false);
+  const [productImageUrl, setProductImageUrl] = useState<string>("");
+  const { toast } = useToast();
+
+  const uploadMutation = useMutation({
+    mutationFn: api.uploadImage,
+    onSuccess: (data) => {
+      setProductImageUrl(data.url);
+      form.setValue("imagem_url", data.url);
+      toast({
+        title: "Imagem enviada!",
+        description: "Imagem do produto carregada com sucesso.",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Erro no upload",
+        description: error.message || "Erro ao enviar a imagem.",
+        variant: "destructive",
+      });
+    },
+  });
 
   const form = useForm<Omit<InsertProduto, "vitrine_id">>({
     resolver: zodResolver(insertProdutoSchema.omit({ vitrine_id: true })),
@@ -43,15 +67,14 @@ export function ProductForm({
   });
 
   const handleFileSelect = (file: File) => {
-    // Para o MVP, vamos usar uma URL fictícia
-    // Em produção, seria necessário implementar upload real
-    form.setValue("imagem_url", `https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400`);
+    uploadMutation.mutate(file);
   };
 
   const handleSubmit = (data: Omit<InsertProduto, "vitrine_id">) => {
     onAddProduct(data);
     form.reset();
     setShowAddForm(false);
+    setProductImageUrl("");
   };
 
   const canAddMore = products.length < 5;
@@ -164,6 +187,8 @@ export function ProductForm({
                 <FileUpload
                   onFileSelect={handleFileSelect}
                   placeholder="Adicionar imagem do produto"
+                  isLoading={uploadMutation.isPending}
+                  uploadedUrl={productImageUrl}
                 />
               </div>
 
@@ -171,12 +196,16 @@ export function ProductForm({
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={() => setShowAddForm(false)}
+                  onClick={() => {
+                    setShowAddForm(false);
+                    setProductImageUrl("");
+                    form.reset();
+                  }}
                 >
                   Cancelar
                 </Button>
-                <Button type="submit" disabled={isLoading}>
-                  {isLoading ? "Adicionando..." : "Adicionar Produto"}
+                <Button type="submit" disabled={isLoading || uploadMutation.isPending}>
+                  {isLoading ? "Adicionando..." : uploadMutation.isPending ? "Enviando imagem..." : "Adicionar Produto"}
                 </Button>
               </div>
             </form>

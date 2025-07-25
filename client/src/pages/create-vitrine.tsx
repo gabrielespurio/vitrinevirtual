@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { useMutation, queryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
+import { queryClient } from "@/lib/queryClient";
 import { useLocation } from "wouter";
 import { VitrineForm } from "@/components/vitrine-form";
 import { ProductForm } from "@/components/product-form";

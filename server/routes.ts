@@ -1,10 +1,64 @@
-import type { Express } from "express";
+import express, { type Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertVitrineSchema, insertProdutoSchema } from "@shared/schema";
 import { z } from "zod";
+import multer from "multer";
+import path from "path";
+import fs from "fs";
+
+// Configurar multer para upload de arquivos
+const uploadDir = path.join(process.cwd(), "uploads");
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
+
+const storage_multer = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, uploadDir);
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1E9);
+    cb(null, file.fieldname + "-" + uniqueSuffix + path.extname(file.originalname));
+  }
+});
+
+const upload = multer({ 
+  storage: storage_multer,
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5MB limit
+  },
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Apenas arquivos de imagem são permitidos'));
+    }
+  }
+});
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Servir arquivos estáticos da pasta uploads
+  app.use("/uploads", express.static(uploadDir));
+
+  // Upload de imagem
+  app.post("/api/upload", upload.single("image"), (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: "Nenhum arquivo enviado" });
+      }
+
+      const fileUrl = `/uploads/${req.file.filename}`;
+      res.json({ 
+        url: fileUrl,
+        filename: req.file.filename,
+        originalname: req.file.originalname,
+        size: req.file.size
+      });
+    } catch (error) {
+      res.status(500).json({ message: "Erro no upload da imagem" });
+    }
+  });
   // Criar vitrine
   app.post("/api/vitrines", async (req, res) => {
     try {

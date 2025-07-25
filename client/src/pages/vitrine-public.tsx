@@ -9,7 +9,10 @@ export default function VitrinePublic() {
   const [match, params] = useRoute("/:slug");
   const slug = params?.slug;
 
-  const { data, isLoading, error } = useQuery({
+  const { data, isLoading, error } = useQuery<{
+    vitrine: { id: string; nome: string; descricao: string | null; slug: string; imagem_capa: string | null; usuario_id: string | null; };
+    produtos: { id: string; nome: string; descricao: string | null; imagem_url: string | null; link_compra: string; vitrine_id: string; }[];
+  }>({
     queryKey: ["/api/vitrine", slug],
     enabled: !!slug,
   });
