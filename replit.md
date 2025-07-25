@@ -32,13 +32,14 @@ Preferred communication style: Simple, everyday language.
 
 ### Core Entities
 1. **Usuarios (Users)**: Basic user management (currently using in-memory storage)
-2. **Vitrines (Showcases)**: Digital storefronts with unique slugs
-3. **Produtos (Products)**: Individual products within showcases (max 5 per showcase in free tier)
+2. **Vitrines (Showcases)**: Digital storefronts with unique slugs and cover images
+3. **Produtos (Products)**: Individual products with prices, images, and availability status (max 5 per showcase in free tier)
 
 ### API Endpoints
+- `POST /api/upload` - Upload images for showcases and products
 - `POST /api/vitrines` - Create new showcase
 - `GET /api/vitrine/:slug` - Retrieve showcase by unique slug
-- `POST /api/produtos` - Add products to showcases
+- `POST /api/produtos` - Add products to showcases with prices
 - `DELETE /api/produtos/:id` - Remove products
 
 ### Frontend Pages
@@ -48,18 +49,20 @@ Preferred communication style: Simple, everyday language.
 - **404**: Not found page
 
 ### UI Components
-- Form components with file upload capabilities
-- Product management interface
+- File upload system with real image processing via multer
+- Product management interface with pricing
 - Responsive design optimized for mobile sharing
-- WhatsApp integration for easy sharing
+- WhatsApp integration for sharing showcases and product purchases
+- Internal checkout system generating WhatsApp purchase links
 
 ## Data Flow
 
-1. **Showcase Creation**: Users create showcases with name, description, and cover image
+1. **Showcase Creation**: Users create showcases with name, description, and cover image (uploaded to server)
 2. **Slug Generation**: Automatic slug generation from showcase name for SEO-friendly URLs
-3. **Product Management**: Users add up to 5 products with images, descriptions, and purchase links
+3. **Product Management**: Users add up to 5 products with images, descriptions, and prices
 4. **Public Access**: Showcases are accessible via `/slug` URLs for public viewing
-5. **Social Sharing**: Built-in WhatsApp sharing functionality
+5. **Purchase System**: Customers click "Comprar" to generate WhatsApp messages with product details
+6. **Social Sharing**: Built-in WhatsApp sharing functionality for showcases
 
 ## External Dependencies
 

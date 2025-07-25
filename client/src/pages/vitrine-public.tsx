@@ -11,7 +11,7 @@ export default function VitrinePublic() {
 
   const { data, isLoading, error } = useQuery<{
     vitrine: { id: string; nome: string; descricao: string | null; slug: string; imagem_capa: string | null; usuario_id: string | null; };
-    produtos: { id: string; nome: string; descricao: string | null; imagem_url: string | null; link_compra: string; vitrine_id: string; }[];
+    produtos: { id: string; nome: string; descricao: string | null; imagem_url: string | null; preco: string; disponivel: number; vitrine_id: string; }[];
   }>({
     queryKey: ["/api/vitrine", slug],
     enabled: !!slug,
@@ -27,8 +27,16 @@ export default function VitrinePublic() {
     window.open(whatsappUrl, "_blank");
   };
 
-  const handleProductClick = (linkCompra: string) => {
-    window.open(linkCompra, "_blank");
+  const handleBuyProduct = (productId: string, productName: string, price: string) => {
+    // Gerar link de WhatsApp para compra
+    const message = `Olá! Tenho interesse no produto *${productName}* por R$ ${price} da vitrine ${data?.vitrine.nome}. 
+
+Link: ${window.location.href}
+
+Podemos conversar sobre a compra?`;
+    
+    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+    window.open(whatsappUrl, "_blank");
   };
 
   if (isLoading) {
@@ -111,14 +119,21 @@ export default function VitrinePublic() {
                   <CardContent className="p-6">
                     <h3 className="text-lg font-semibold text-slate-900 mb-2">{produto.nome}</h3>
                     {produto.descricao && (
-                      <p className="text-slate-600 text-sm mb-4">{produto.descricao}</p>
+                      <p className="text-slate-600 text-sm mb-3">{produto.descricao}</p>
                     )}
+                    <div className="flex items-center justify-between mb-4">
+                      <span className="text-2xl font-bold text-green-600">R$ {produto.preco}</span>
+                      {produto.disponivel === 0 && (
+                        <span className="text-red-500 text-sm font-medium">Indisponível</span>
+                      )}
+                    </div>
                     <Button 
-                      onClick={() => handleProductClick(produto.link_compra)}
-                      className="bg-primary hover:bg-blue-600 w-full"
+                      onClick={() => handleBuyProduct(produto.id, produto.nome, produto.preco)}
+                      disabled={produto.disponivel === 0}
+                      className="bg-green-600 hover:bg-green-700 w-full disabled:bg-gray-400"
                     >
                       <ExternalLink className="mr-2 w-4 h-4" />
-                      Comprar
+                      {produto.disponivel === 0 ? "Indisponível" : "Comprar via WhatsApp"}
                     </Button>
                   </CardContent>
                 </Card>

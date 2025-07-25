@@ -139,27 +139,33 @@ export default function Home() {
                   {
                     image: "https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400",
                     nome: "Vestido Preto Elegante",
-                    descricao: "Vestido midi preto com modelagem elegante, perfeito para ocasiões especiais."
+                    descricao: "Vestido midi preto com modelagem elegante, perfeito para ocasiões especiais.",
+                    preco: "189,90"
                   },
                   {
                     image: "https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400",
                     nome: "Blusa Branca Casual",
-                    descricao: "Blusa branca versátil, ideal para looks casuais e profissionais."
+                    descricao: "Blusa branca versátil, ideal para looks casuais e profissionais.",
+                    preco: "79,90"
                   },
                   {
                     image: "https://images.unsplash.com/photo-1542272604-787c3835535d?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400",
                     nome: "Calça Jeans Azul",
-                    descricao: "Jeans de corte moderno e confortável, essencial no guarda-roupa."
+                    descricao: "Jeans de corte moderno e confortável, essencial no guarda-roupa.",
+                    preco: "159,90"
                   }
                 ].map((produto, index) => (
                   <Card key={index} className="overflow-hidden hover:shadow-lg transition-shadow">
                     <img src={produto.image} alt={produto.nome} className="w-full h-48 object-cover" />
                     <CardContent className="p-6">
                       <h3 className="text-lg font-semibold text-slate-900 mb-2">{produto.nome}</h3>
-                      <p className="text-slate-600 text-sm mb-4">{produto.descricao}</p>
-                      <Button className="bg-primary hover:bg-blue-600">
+                      <p className="text-slate-600 text-sm mb-3">{produto.descricao}</p>
+                      <div className="flex items-center justify-between mb-4">
+                        <span className="text-xl font-bold text-green-600">R$ {produto.preco}</span>
+                      </div>
+                      <Button className="bg-green-600 hover:bg-green-700 w-full">
                         <Eye className="mr-2 w-4 h-4" />
-                        Comprar
+                        Comprar via WhatsApp
                       </Button>
                     </CardContent>
                   </Card>

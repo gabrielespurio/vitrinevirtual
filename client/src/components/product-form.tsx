@@ -61,8 +61,9 @@ export function ProductForm({
     defaultValues: {
       nome: "",
       descricao: "",
-      link_compra: "",
+      preco: "",
       imagem_url: "",
+      disponivel: 1,
     },
   });
 
@@ -116,8 +117,8 @@ export function ProductForm({
                   <p className="text-slate-900">{product.nome}</p>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-slate-700">Link:</p>
-                  <p className="text-slate-600 truncate">{product.link_compra}</p>
+                  <p className="text-sm font-medium text-slate-700">Preço:</p>
+                  <p className="text-slate-900 font-semibold">R$ {product.preco}</p>
                 </div>
               </div>
               
@@ -153,17 +154,21 @@ export function ProductForm({
                 </div>
                 
                 <div>
-                  <Label htmlFor="link_compra" className="text-sm font-medium text-slate-700 mb-2 block">
-                    Link de Compra *
+                  <Label htmlFor="preco" className="text-sm font-medium text-slate-700 mb-2 block">
+                    Preço *
                   </Label>
-                  <Input
-                    id="link_compra"
-                    type="url"
-                    placeholder="https://..."
-                    {...form.register("link_compra")}
-                  />
-                  {form.formState.errors.link_compra && (
-                    <p className="text-red-500 text-sm mt-1">{form.formState.errors.link_compra.message}</p>
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-500">R$</span>
+                    <Input
+                      id="preco"
+                      type="text"
+                      placeholder="10,00"
+                      className="pl-10"
+                      {...form.register("preco")}
+                    />
+                  </div>
+                  {form.formState.errors.preco && (
+                    <p className="text-red-500 text-sm mt-1">{form.formState.errors.preco.message}</p>
                   )}
                 </div>
               </div>

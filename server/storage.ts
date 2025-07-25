@@ -103,6 +103,7 @@ export class MemStorage implements IStorage {
       id,
       descricao: insertProduto.descricao || null,
       imagem_url: insertProduto.imagem_url || null,
+      disponivel: insertProduto.disponivel || 1,
     };
     this.produtos.set(id, produto);
     return produto;

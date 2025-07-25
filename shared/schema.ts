@@ -25,7 +25,8 @@ export const produtos = pgTable("produtos", {
   nome: text("nome").notNull(),
   descricao: text("descricao"),
   imagem_url: text("imagem_url"),
-  link_compra: text("link_compra").notNull(),
+  preco: text("preco").notNull(), // Preço do produto
+  disponivel: integer("disponivel").default(1), // 1 = disponível, 0 = indisponível
 });
 
 export const insertUsuarioSchema = createInsertSchema(usuarios).pick({
@@ -49,10 +50,11 @@ export const insertProdutoSchema = createInsertSchema(produtos).pick({
   nome: true,
   descricao: true,
   imagem_url: true,
-  link_compra: true,
+  preco: true,
+  disponivel: true,
 }).extend({
   nome: z.string().min(1, "Nome do produto é obrigatório"),
-  link_compra: z.string().url("Link de compra deve ser uma URL válida"),
+  preco: z.string().min(1, "Preço é obrigatório").regex(/^\d+([.,]\d{1,2})?$/, "Preço deve estar no formato: 10,00 ou 10.00"),
 });
 
 export type InsertUsuario = z.infer<typeof insertUsuarioSchema>;
