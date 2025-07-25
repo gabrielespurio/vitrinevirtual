@@ -21,7 +21,7 @@ export default function Home() {
 
 
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-blue-50 to-indigo-100 py-20">
+      <section className="bg-white py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <h1 className="text-4xl md:text-6xl font-bold text-slate-900 mb-6">
@@ -33,7 +33,7 @@ export default function Home() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button 
                 size="lg" 
-                className="bg-primary text-white px-8 py-4 text-lg"
+                className="bg-gradient-to-r from-primary to-purple-600 hover:from-purple-600 hover:to-primary text-white px-8 py-4 text-lg transition-all duration-300 shadow-lg hover:shadow-xl"
                 onClick={handleCreateVitrine}
               >
                 <Rocket className="mr-2 w-5 h-5" />

@@ -63,3 +63,8 @@
   --primary: hsl(283, 39%, 47%);
   --accent: hsl(283, 39%, 52%);
 }
+
+/* Custom gradient utilities */
+.bg-gradient-primary {
+  background: linear-gradient(135deg, hsl(283, 39%, 47%) 0%, hsl(270, 50%, 60%) 100%);
+}
