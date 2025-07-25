@@ -93,8 +93,9 @@ Primary brand color: #8E44AD (purple theme)
 - Replit-specific optimizations and error handling
 
 ### Storage Architecture
-- **Current**: PostgreSQL database via Drizzle ORM (migrated from in-memory)
-- **Database**: Neon PostgreSQL serverless with persistent data storage
-- **File Uploads**: Local file system storage with real image processing
+- **Database**: Neon PostgreSQL serverless exclusivo (postgresql://neondb_owner:npg_IVmG9fiMSWn7@ep-mute-tree-acxx8sln-pooler.sa-east-1.aws.neon.tech/neondb)
+- **ORM**: Drizzle ORM para operações type-safe
+- **File Uploads**: Sistema de arquivos local com processamento real de imagens
+- **Configuração**: Conexão única e exclusiva com banco Neon externo, sem banco local do Replit
 
 The application follows a monorepo structure with clear separation between client, server, and shared code, making it easy to scale and maintain as the product grows.
