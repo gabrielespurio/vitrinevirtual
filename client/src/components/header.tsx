@@ -90,23 +90,15 @@ export function Header() {
                   </Button>
                 </>
               ) : (
-                <>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleLogin}
-                    className="flex items-center space-x-2"
-                  >
-                    <User className="w-4 h-4" />
-                    <span>Entrar</span>
-                  </Button>
-                  <Button
-                    size="sm"
-                    onClick={handleCreateVitrine}
-                  >
-                    Criar Vitrine
-                  </Button>
-                </>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleLogin}
+                  className="flex items-center space-x-2"
+                >
+                  <User className="w-4 h-4" />
+                  <span>Entrar</span>
+                </Button>
               )}
             </div>
           </div>
