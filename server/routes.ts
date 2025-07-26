@@ -26,7 +26,7 @@ const storage_multer = multer.diskStorage({
 const upload = multer({ 
   storage: storage_multer,
   limits: {
-    fileSize: 5 * 1024 * 1024, // 5MB limit
+    fileSize: 10 * 1024 * 1024, // 10MB limit
   },
   fileFilter: (req, file, cb) => {
     if (file.mimetype.startsWith('image/')) {
@@ -243,92 +243,131 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
 
   // Atualizar vitrine
-  app.put("/api/vitrines/:id", upload.single("imagem"), async (req, res) => {
-    try {
-      const { id } = req.params;
-      const updateData: any = {
-        nome: req.body.nome,
-        descricao: req.body.descricao
-      };
-
-      if (req.file) {
-        updateData.imagem_capa = `/uploads/${req.file.filename}`;
+  app.put("/api/vitrines/:id", (req, res) => {
+    upload.single("imagem")(req, res, async (err) => {
+      if (err) {
+        console.error('Erro no upload:', err);
+        if (err.code === 'LIMIT_FILE_SIZE') {
+          return res.status(400).json({ message: "Arquivo muito grande. Tamanho máximo: 10MB" });
+        }
+        if (err.message === 'Apenas arquivos de imagem são permitidos') {
+          return res.status(400).json({ message: "Apenas arquivos de imagem são permitidos" });
+        }
+        return res.status(500).json({ message: "Erro no upload do arquivo" });
       }
 
-      const vitrine = await storage.updateVitrine(id, updateData);
-      if (!vitrine) {
-        return res.status(404).json({ message: "Vitrine não encontrada" });
-      }
+      try {
+        const { id } = req.params;
+        const updateData: any = {
+          nome: req.body.nome,
+          descricao: req.body.descricao
+        };
 
-      res.json(vitrine);
-    } catch (error) {
-      console.error('Erro ao atualizar vitrine:', error);
-      res.status(500).json({ message: "Erro interno do servidor" });
-    }
+        if (req.file) {
+          updateData.imagem_capa = `/uploads/${req.file.filename}`;
+        }
+
+        const vitrine = await storage.updateVitrine(id, updateData);
+        if (!vitrine) {
+          return res.status(404).json({ message: "Vitrine não encontrada" });
+        }
+
+        res.json(vitrine);
+      } catch (error) {
+        console.error('Erro ao atualizar vitrine:', error);
+        res.status(500).json({ message: "Erro interno do servidor" });
+      }
+    });
   });
 
   // Adicionar produto com upload de imagem
-  app.post("/api/produtos", upload.single("imagem"), async (req, res) => {
-    try {
-      const produtoData = {
-        vitrine_id: req.body.vitrine_id,
-        nome: req.body.nome,
-        descricao: req.body.descricao,
-        preco: req.body.preco,
-        disponivel: parseInt(req.body.disponivel) || 1,
-        imagem_url: req.file ? `/uploads/${req.file.filename}` : null
-      };
-
-      const validatedData = insertProdutoSchema.parse(produtoData);
-      
-      // Verificar se vitrine existe
-      const vitrine = await storage.getVitrine(validatedData.vitrine_id);
-      if (!vitrine) {
-        return res.status(404).json({ message: "Vitrine não encontrada" });
+  app.post("/api/produtos", (req, res) => {
+    upload.single("imagem")(req, res, async (err) => {
+      if (err) {
+        console.error('Erro no upload:', err);
+        if (err.code === 'LIMIT_FILE_SIZE') {
+          return res.status(400).json({ message: "Arquivo muito grande. Tamanho máximo: 10MB" });
+        }
+        if (err.message === 'Apenas arquivos de imagem são permitidos') {
+          return res.status(400).json({ message: "Apenas arquivos de imagem são permitidos" });
+        }
+        return res.status(500).json({ message: "Erro no upload do arquivo" });
       }
 
-      // Verificar limite de 5 produtos
-      const existingProdutos = await storage.getProdutosByVitrine(validatedData.vitrine_id);
-      if (existingProdutos.length >= 5) {
-        return res.status(400).json({ message: "Limite de 5 produtos atingido" });
-      }
+      try {
+        const produtoData = {
+          vitrine_id: req.body.vitrine_id,
+          nome: req.body.nome,
+          descricao: req.body.descricao,
+          preco: req.body.preco,
+          disponivel: parseInt(req.body.disponivel) || 1,
+          imagem_url: req.file ? `/uploads/${req.file.filename}` : null
+        };
 
-      const produto = await storage.createProduto(validatedData);
-      res.json(produto);
-    } catch (error) {
-      console.error('Erro ao criar produto:', error);
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({ message: "Dados inválidos", errors: error.errors });
+        const validatedData = insertProdutoSchema.parse(produtoData);
+        
+        // Verificar se vitrine existe
+        const vitrine = await storage.getVitrine(validatedData.vitrine_id);
+        if (!vitrine) {
+          return res.status(404).json({ message: "Vitrine não encontrada" });
+        }
+
+        // Verificar limite de 5 produtos
+        const existingProdutos = await storage.getProdutosByVitrine(validatedData.vitrine_id);
+        if (existingProdutos.length >= 5) {
+          return res.status(400).json({ message: "Limite de 5 produtos atingido" });
+        }
+
+        const produto = await storage.createProduto(validatedData);
+        res.json(produto);
+      } catch (error) {
+        console.error('Erro ao criar produto:', error);
+        if (error instanceof z.ZodError) {
+          return res.status(400).json({ message: "Dados inválidos", errors: error.errors });
+        }
+        res.status(500).json({ message: "Erro interno do servidor" });
       }
-      res.status(500).json({ message: "Erro interno do servidor" });
-    }
+    });
   });
 
   // Atualizar produto
-  app.put("/api/produtos/:id", upload.single("imagem"), async (req, res) => {
-    try {
-      const { id } = req.params;
-      const updateData: any = {
-        nome: req.body.nome,
-        descricao: req.body.descricao,
-        preco: req.body.preco,
-        disponivel: parseInt(req.body.disponivel) || 1
-      };
-
-      if (req.file) {
-        updateData.imagem_url = `/uploads/${req.file.filename}`;
+  app.put("/api/produtos/:id", (req, res) => {
+    upload.single("imagem")(req, res, async (err) => {
+      if (err) {
+        console.error('Erro no upload:', err);
+        if (err.code === 'LIMIT_FILE_SIZE') {
+          return res.status(400).json({ message: "Arquivo muito grande. Tamanho máximo: 10MB" });
+        }
+        if (err.message === 'Apenas arquivos de imagem são permitidos') {
+          return res.status(400).json({ message: "Apenas arquivos de imagem são permitidos" });
+        }
+        return res.status(500).json({ message: "Erro no upload do arquivo" });
       }
 
-      const produto = await storage.updateProduto(id, updateData);
-      if (!produto) {
-        return res.status(404).json({ message: "Produto não encontrado" });
-      }
+      try {
+        const { id } = req.params;
+        const updateData: any = {
+          nome: req.body.nome,
+          descricao: req.body.descricao,
+          preco: req.body.preco,
+          disponivel: parseInt(req.body.disponivel) || 1
+        };
 
-      res.json(produto);
-    } catch (error) {
-      console.error('Erro ao atualizar produto:', error);
-      res.status(500).json({ message: "Erro interno do servidor" });
-    }
+        if (req.file) {
+          updateData.imagem_url = `/uploads/${req.file.filename}`;
+        }
+
+        const produto = await storage.updateProduto(id, updateData);
+        if (!produto) {
+          return res.status(404).json({ message: "Produto não encontrado" });
+        }
+
+        res.json(produto);
+      } catch (error) {
+        console.error('Erro ao atualizar produto:', error);
+        res.status(500).json({ message: "Erro interno do servidor" });
+      }
+    });
   });
 
   // Remover produto

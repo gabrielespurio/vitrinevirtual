@@ -75,10 +75,11 @@ export default function EditVitrine() {
       queryClient.invalidateQueries({ queryKey: ["/api/vitrine", slug] });
       setIsEditingVitrine(false);
     },
-    onError: () => {
+    onError: (error: any) => {
+      const message = error?.response?.data?.message || "Tente novamente mais tarde";
       toast({ 
         title: "Erro ao atualizar vitrine", 
-        description: "Tente novamente mais tarde",
+        description: message,
         variant: "destructive"
       });
     }
@@ -100,10 +101,11 @@ export default function EditVitrine() {
       resetProductForm();
       setIsAddingProduct(false);
     },
-    onError: () => {
+    onError: (error: any) => {
+      const message = error?.response?.data?.message || "Tente novamente mais tarde";
       toast({ 
         title: "Erro ao adicionar produto", 
-        description: "Tente novamente mais tarde",
+        description: message,
         variant: "destructive"
       });
     }
@@ -125,10 +127,11 @@ export default function EditVitrine() {
       resetProductForm();
       setEditingProduct(null);
     },
-    onError: () => {
+    onError: (error: any) => {
+      const message = error?.response?.data?.message || "Tente novamente mais tarde";
       toast({ 
         title: "Erro ao atualizar produto", 
-        description: "Tente novamente mais tarde",
+        description: message,
         variant: "destructive"
       });
     }
@@ -322,6 +325,9 @@ export default function EditVitrine() {
                     accept="image/*"
                     onChange={(e) => setVitrineImageFile(e.target.files?.[0] || null)}
                   />
+                  <p className="text-xs text-slate-500 mt-1">
+                    Tamanho máximo: 10MB. Formatos aceitos: JPG, PNG, GIF
+                  </p>
                 </div>
                 <Button
                   onClick={handleUpdateVitrine}
@@ -416,6 +422,9 @@ export default function EditVitrine() {
                         accept="image/*"
                         onChange={(e) => setProdutoImageFile(e.target.files?.[0] || null)}
                       />
+                      <p className="text-xs text-slate-500 mt-1">
+                        Tamanho máximo: 10MB. Formatos aceitos: JPG, PNG, GIF
+                      </p>
                     </div>
                     <div className="flex gap-2">
                       <Button
@@ -542,6 +551,9 @@ export default function EditVitrine() {
                                   accept="image/*"
                                   onChange={(e) => setProdutoImageFile(e.target.files?.[0] || null)}
                                 />
+                                <p className="text-xs text-slate-500 mt-1">
+                                  Tamanho máximo: 10MB. Formatos aceitos: JPG, PNG, GIF
+                                </p>
                               </div>
                               <div className="flex gap-2">
                                 <Button
