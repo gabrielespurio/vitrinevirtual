@@ -162,6 +162,7 @@ export default function EditVitrine() {
     setProdutoPreco("");
     setProdutoImageFile(null);
     setProdutoDisponivel(1);
+    setEditingProduct(null);
   };
 
   const handleUpdateVitrine = () => {
@@ -362,7 +363,12 @@ export default function EditVitrine() {
                 <Package className="w-5 h-5 mr-2" />
                 Produtos ({produtos.length}/5)
               </CardTitle>
-              <Dialog open={isAddingProduct} onOpenChange={setIsAddingProduct}>
+              <Dialog open={isAddingProduct} onOpenChange={(open) => {
+                if (open) {
+                  resetProductForm();
+                }
+                setIsAddingProduct(open);
+              }}>
                 <DialogTrigger asChild>
                   <Button disabled={produtos.length >= 5}>
                     <Plus className="w-4 h-4 mr-2" />
@@ -411,13 +417,25 @@ export default function EditVitrine() {
                         onChange={(e) => setProdutoImageFile(e.target.files?.[0] || null)}
                       />
                     </div>
-                    <Button
-                      onClick={handleAddProduct}
-                      disabled={addProductMutation.isPending || !produtoNome || !produtoPreco}
-                      className="w-full"
-                    >
-                      {addProductMutation.isPending ? "Adicionando..." : "Adicionar Produto"}
-                    </Button>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        onClick={() => {
+                          resetProductForm();
+                          setIsAddingProduct(false);
+                        }}
+                        className="flex-1"
+                      >
+                        Cancelar
+                      </Button>
+                      <Button
+                        onClick={handleAddProduct}
+                        disabled={addProductMutation.isPending || !produtoNome || !produtoPreco}
+                        className="flex-1"
+                      >
+                        {addProductMutation.isPending ? "Adicionando..." : "Adicionar"}
+                      </Button>
+                    </div>
                   </div>
                 </DialogContent>
               </Dialog>
@@ -465,13 +483,19 @@ export default function EditVitrine() {
                         </span>
                       </div>
                       <div className="flex space-x-2">
-                        <Dialog>
+                        <Dialog onOpenChange={(open) => {
+                          if (!open) {
+                            resetProductForm();
+                          }
+                        }}>
                           <DialogTrigger asChild>
                             <Button
                               variant="outline"
                               size="sm"
                               className="flex-1"
-                              onClick={() => handleEditProduct(produto)}
+                              onClick={() => {
+                                handleEditProduct(produto);
+                              }}
                             >
                               <Edit2 className="w-3 h-3 mr-1" />
                               Editar
@@ -519,13 +543,24 @@ export default function EditVitrine() {
                                   onChange={(e) => setProdutoImageFile(e.target.files?.[0] || null)}
                                 />
                               </div>
-                              <Button
-                                onClick={() => handleUpdateProduct(produto.id)}
-                                disabled={updateProductMutation.isPending || !produtoNome || !produtoPreco}
-                                className="w-full"
-                              >
-                                {updateProductMutation.isPending ? "Salvando..." : "Salvar Alterações"}
-                              </Button>
+                              <div className="flex gap-2">
+                                <Button
+                                  variant="outline"
+                                  onClick={() => {
+                                    resetProductForm();
+                                  }}
+                                  className="flex-1"
+                                >
+                                  Cancelar
+                                </Button>
+                                <Button
+                                  onClick={() => handleUpdateProduct(produto.id)}
+                                  disabled={updateProductMutation.isPending || !produtoNome || !produtoPreco}
+                                  className="flex-1"
+                                >
+                                  {updateProductMutation.isPending ? "Salvando..." : "Salvar"}
+                                </Button>
+                              </div>
                             </div>
                           </DialogContent>
                         </Dialog>
